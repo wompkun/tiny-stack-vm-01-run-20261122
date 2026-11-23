@@ -10,7 +10,7 @@ function run(p: Uint8Array, inp: Uint8Array): [Uint8Array, number] {
   let s = 0, c = 0, l = 0, ip = 0, pc = 0, st = 0;
   const end = (e: number): [Uint8Array, number] => [o.slice(0, l), e];
   for (;;) {
-    if (st === 1e6) return end(10);
+    if (st >= 1e6) return end(10); // step limit: trap before the 1,000,001st instruction executes
     if (pc < 0 || pc >= n) return end(9);
     const op = p[pc];
     if (op > 7 && !(op >= 16 && op <= 30) && !(op >= 32 && op <= 34) && !(op >= 48 && op <= 52) && op !== 64 && op !== 65 && !(op >= 80 && op <= 83)) return end(5);
@@ -18,6 +18,7 @@ function run(p: Uint8Array, inp: Uint8Array): [Uint8Array, number] {
     if (op === 1) im = 1;
     else if (op === 2) im = 4;
     else if (op >= 48 && op <= 51) im = 2;
+    // an operand that runs past the end of the program is a truncated fetch (trap 9)
     if (pc + im >= n) return end(9);
     let po = 0, pu = 0;
     if (op === 3 || op === 4 || op === 23 || op === 27 || op === 64 || op === 80 || op === 81 || op === 83) po = 1;
